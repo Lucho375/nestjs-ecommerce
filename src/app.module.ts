@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -11,8 +12,16 @@ import { UsersModule } from './users/users.module';
   controllers: [AppController],
   providers: [AppService, HashService],
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     ProductsModule,
-    MongooseModule.forRoot('mongodb://127.0.0.1:27017/nestjs-ecommerce'),
+    MongooseModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        return { uri: config.get<string>('DB_URI') };
+      },
+    }),
     AuthModule,
     HashModule,
     UsersModule,

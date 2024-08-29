@@ -2,14 +2,19 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   Param,
+  ParseFilePipe,
   Post,
   Put,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { FindOneById } from './dto/find-one-by-id.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+
+import { Public } from 'src/auth/decorators/public.decorator';
+import { CreateProductDto, FindOneById, UpdateProductDto } from './dto';
 import { ProductsService } from './products.service';
 
 @Controller('products')
@@ -17,15 +22,26 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto);
+  @UseInterceptors(FileInterceptor('file'))
+  async create(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: 'image/jpeg' })],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return this.productsService.create(createProductDto, file);
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.productsService.findAll();
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param() { id }: FindOneById) {
     return this.productsService.findOne(id);
