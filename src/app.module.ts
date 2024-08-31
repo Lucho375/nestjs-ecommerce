@@ -5,12 +5,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { HashModule } from './hash/hash.module';
-import { HashService } from './hash/hash.service';
 import { ProductsModule } from './products/products.module';
 import { UsersModule } from './users/users.module';
 @Module({
   controllers: [AppController],
-  providers: [AppService, HashService],
+  providers: [AppService],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
