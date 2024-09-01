@@ -16,11 +16,8 @@ export class CloudinaryService {
           folder,
         },
         (error, result) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(result);
-          }
+          if (error) return reject(error);
+          resolve(result);
         },
       );
 
