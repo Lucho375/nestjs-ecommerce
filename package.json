@@ -7,6 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "email:templates": "cp -r ./src/email/templates ./dist/email/templates",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -32,8 +33,10 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cloudinary": "^2.4.0",
+    "handlebars": "^4.7.8",
     "mongoose": "^8.5.4",
     "reflect-metadata": "^0.2.0",
+    "resend": "^4.0.0",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {

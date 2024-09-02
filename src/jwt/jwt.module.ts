@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule as NestJwtModule } from '@nestjs/jwt';
+import { JwtService } from './jwt.service';
 
 @Module({
   imports: [
@@ -10,12 +11,13 @@ import { JwtModule as NestJwtModule } from '@nestjs/jwt';
         return {
           secret: config.get<string>('JWT_SECRET'),
           signOptions: {
-            expiresIn: '60s',
+            expiresIn: '10m',
           },
         };
       },
       global: true,
     }),
   ],
+  providers: [JwtService],
 })
 export class JwtModule {}
