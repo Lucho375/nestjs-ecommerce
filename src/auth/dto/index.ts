@@ -1,2 +1,3 @@
 export * from './login-credentials.dto';
-export * from './register-user.dto';
+export * from './token.dto';
+export * from './reset.password.dto';

@@ -1,0 +1,52 @@
+<html lang='es'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <style>
+      body { font-family: Arial, sans-serif; color: #333; margin: 0; padding: 0;
+      background-color: #f9f9f9; } .container { width: 100%; max-width: 600px;
+      margin: auto; background: #ffffff; border: 1px solid #ddd; border-radius:
+      8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); } .header
+      { background-color: #007bff; color: #ffffff; padding: 20px; text-align:
+      center; font-size: 24px; } .content { padding: 20px; } .content p {
+      line-height: 1.6; margin: 15px 0; } .button { display: inline-block;
+      padding: 12px 20px; margin: 20px 0; background-color: #28a745; color:
+      #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;
+      text-align: center; } .footer { background: #f1f1f1; color: #888;
+      text-align: center; padding: 10px; font-size: 12px; border-top: 1px solid
+      #ddd; } .footer a { color: #007bff; text-decoration: none; } .footer
+      a:hover { text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='header'>
+        ¡Bienvenido a
+        {{companyName}}!
+      </div>
+      <div class='content'>
+        <p>Hola {{firstName}},</p>
+        <p>
+          Para completar tu registro, por favor confirma tu dirección de correo
+          electrónico haciendo clic en el siguiente enlace:
+        </p>
+        <a href='{{confirmationUrl}}' class='button'>Confirmar Email</a>
+        <p>
+          Si no te registraste en nuestro sitio web, puedes ignorar este correo
+          electrónico.
+        </p>
+      </div>
+      <div class='footer'>
+        <p>
+          Si tienes alguna pregunta, no dudes en
+          <a href='mailto:support@{{companyDomain}}'>contactarnos</a>.
+        </p>
+        <p>
+          &copy;
+          {{year}}
+          {{companyName}}. Todos los derechos reservados.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
