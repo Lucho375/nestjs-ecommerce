@@ -6,9 +6,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { EmailService } from 'src/email/email.service';
 import { HashService } from 'src/hash/hash.service';
+import { TokenService } from 'src/token/token.service';
 import { CreateUserDto } from 'src/users/dto';
 import { UsersService } from 'src/users/users.service';
 import { LoginCredentials, ResetPasswordDto } from './dto';
@@ -21,7 +21,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly hashService: HashService,
-    private readonly jwtService: JwtService,
+    private readonly tokenService: TokenService,
     private readonly emailService: EmailService,
     private readonly configService: ConfigService,
   ) {
@@ -60,14 +60,20 @@ export class AuthService {
       email: user.email,
     };
 
-    return { accessToken: await this.jwtService.signAsync(payload) };
+    return {
+      accessToken: await this.tokenService.signToken(
+        payload,
+        this.tokenService.getAccessSecret(),
+        '10m',
+      ),
+    };
   }
 
   async verifyUser(token: string) {
     try {
-      const decodedToken = await this.jwtService.verifyAsync<{
+      const decodedToken = await this.tokenService.verifyToken<{
         email: string;
-      }>(token, { secret: this.emailConfirmationSecret });
+      }>(token, this.tokenService.getEmailConfirmationSecret());
 
       const user = await this.usersService.findOneByEmail(decodedToken.email);
 
@@ -89,9 +95,10 @@ export class AuthService {
   async resendConfirmationEmail(email: string) {
     try {
       const user = await this.usersService.findOneByEmail(email);
-      const confirmationToken = await this.jwtService.signAsync(
+      const confirmationToken = await this.tokenService.signToken(
         { email },
-        { expiresIn: '5m', secret: this.emailConfirmationSecret },
+        this.tokenService.getEmailConfirmationSecret(),
+        '10m',
       );
       return this.emailService.sendUserEmailConfirmation(
         email,
@@ -110,9 +117,10 @@ export class AuthService {
       const user = await this.usersService.findOneByEmail(email);
       if (!user) throw new NotFoundException('Usuario no encontrado');
 
-      const token = await this.jwtService.signAsync(
+      const token = await this.tokenService.signToken(
         { sub: user.id },
-        { secret: this.resetPasswordSecret, expiresIn: '5m' },
+        this.tokenService.getResetPasswordSecret(),
+        '10m',
       );
       const resetPasswordLink = `${token}`;
 
@@ -128,9 +136,9 @@ export class AuthService {
 
   async resetPassword(token: string, password: ResetPasswordDto) {
     try {
-      const { sub } = await this.jwtService.verifyAsync<{ sub: string }>(
+      const { sub } = await this.tokenService.verifyToken<{ sub: string }>(
         token,
-        { secret: this.resetPasswordSecret },
+        this.tokenService.getResetPasswordSecret(),
       );
 
       await this.usersService.update(sub, password);
