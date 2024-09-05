@@ -5,33 +5,22 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { EmailService } from 'src/email/email.service';
 import { HashService } from 'src/hash/hash.service';
 import { TokenService } from 'src/token/token.service';
 import { CreateUserDto } from 'src/users/dto';
 import { UsersService } from 'src/users/users.service';
 import { LoginCredentials, ResetPasswordDto } from './dto';
+import { TokenEnum } from 'src/token/enums/token.enum';
 
 @Injectable()
 export class AuthService {
-  private readonly emailConfirmationSecret: string;
-  private readonly resetPasswordSecret: string;
-
   constructor(
     private readonly usersService: UsersService,
     private readonly hashService: HashService,
     private readonly tokenService: TokenService,
     private readonly emailService: EmailService,
-    private readonly configService: ConfigService,
-  ) {
-    this.emailConfirmationSecret = this.configService.get<string>(
-      'EMAIL_CONFIRMATION_SECRET',
-    );
-    this.resetPasswordSecret = this.configService.get<string>(
-      'RESET_PASSWORD_SECRET',
-    );
-  }
+  ) {}
 
   async register(registerUserDto: CreateUserDto) {
     const newUser = await this.usersService.create(registerUserDto);
@@ -63,8 +52,11 @@ export class AuthService {
     return {
       accessToken: await this.tokenService.signToken(
         payload,
-        this.tokenService.getAccessSecret(),
-        '10m',
+        TokenEnum.ACCESS_SECRET,
+      ),
+      refreshToken: await this.tokenService.signToken(
+        payload,
+        TokenEnum.REFRESH_SECRET,
       ),
     };
   }
@@ -73,7 +65,7 @@ export class AuthService {
     try {
       const decodedToken = await this.tokenService.verifyToken<{
         email: string;
-      }>(token, this.tokenService.getEmailConfirmationSecret());
+      }>(token, TokenEnum.EMAIL_CONFIRMATION_SECRET);
 
       const user = await this.usersService.findOneByEmail(decodedToken.email);
 
@@ -97,8 +89,7 @@ export class AuthService {
       const user = await this.usersService.findOneByEmail(email);
       const confirmationToken = await this.tokenService.signToken(
         { email },
-        this.tokenService.getEmailConfirmationSecret(),
-        '10m',
+        TokenEnum.EMAIL_CONFIRMATION_SECRET,
       );
       return this.emailService.sendUserEmailConfirmation(
         email,
@@ -119,8 +110,7 @@ export class AuthService {
 
       const token = await this.tokenService.signToken(
         { sub: user.id },
-        this.tokenService.getResetPasswordSecret(),
-        '10m',
+        TokenEnum.PASSWORD_RESET_SECRET,
       );
       const resetPasswordLink = `${token}`;
 
@@ -138,7 +128,7 @@ export class AuthService {
     try {
       const { sub } = await this.tokenService.verifyToken<{ sub: string }>(
         token,
-        this.tokenService.getResetPasswordSecret(),
+        TokenEnum.PASSWORD_RESET_SECRET,
       );
 
       await this.usersService.update(sub, password);
@@ -147,6 +137,29 @@ export class AuthService {
     } catch (error) {
       throw new BadRequestException(
         'Token de verificación inválido o expirado',
+      );
+    }
+  }
+
+  async refreshToken(token: string) {
+    try {
+      const { sub, email, firstName } = await this.tokenService.verifyToken<{
+        sub: string;
+        email: string;
+        firstName: string;
+        iat: number;
+        exp: number;
+      }>(token, TokenEnum.REFRESH_SECRET);
+
+      const newAccessToken = await this.tokenService.signToken(
+        { sub, email, firstName },
+        TokenEnum.ACCESS_SECRET,
+      );
+
+      return { accessToken: newAccessToken };
+    } catch (error) {
+      throw new UnauthorizedException(
+        'Token de refresco inválido o expirado!!!',
       );
     }
   }

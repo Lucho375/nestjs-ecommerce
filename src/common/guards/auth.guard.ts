@@ -6,8 +6,9 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
+import { IS_PUBLIC_KEY } from 'src/common/decorators/public.decorator';
+import { TokenEnum } from 'src/token/enums/token.enum';
 import { TokenService } from 'src/token/token.service';
-import { IS_PUBLIC_KEY } from './decorators';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -32,7 +33,7 @@ export class AuthGuard implements CanActivate {
     try {
       const payload = await this.tokenService.verifyToken(
         token,
-        this.tokenService.getAccessSecret(),
+        TokenEnum.ACCESS_SECRET,
       );
       request['user'] = payload;
     } catch (error) {

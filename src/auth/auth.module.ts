@@ -5,7 +5,7 @@ import { HashModule } from 'src/hash/hash.module';
 import { TokenModule } from 'src/token/token.module';
 import { UsersModule } from 'src/users/users.module';
 import { AuthController } from './auth.controller';
-import { AuthGuard } from './auth.guard';
+import { AuthGuard } from '../common/guards/auth.guard';
 import { AuthService } from './auth.service';
 
 @Module({

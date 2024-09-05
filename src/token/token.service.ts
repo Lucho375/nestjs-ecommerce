@@ -1,50 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { TokenEnum } from './enums/token.enum';
 
 @Injectable()
 export class TokenService {
-  private readonly accessSecret: string;
-  private readonly emailConfirmationSecret: string;
-  private readonly resetPasswordSecret: string;
-
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {
-    this.accessSecret = this.configService.get<string>('JWT_SECRET');
-    this.emailConfirmationSecret = this.configService.get<string>(
-      'EMAIL_CONFIRMATION_SECRET',
-    );
-    this.resetPasswordSecret = this.configService.get<string>(
-      'RESET_PASSWORD_SECRET',
-    );
-  }
+  ) {}
 
   async signToken(
     payload: Record<string, any>,
-    secret: string,
-    expiresIn: string,
+    secretType: TokenEnum,
   ): Promise<string> {
-    return this.jwtService.signAsync(payload, { secret, expiresIn });
+    return this.jwtService.signAsync(payload, {
+      secret: this.getSecret(secretType),
+      expiresIn: '5m',
+    });
   }
 
   async verifyToken<T extends object>(
     token: string,
-    secret: string,
+    secretType: TokenEnum,
   ): Promise<T> {
-    return this.jwtService.verifyAsync<T>(token, { secret });
+    return this.jwtService.verifyAsync<T>(token, {
+      secret: this.getSecret(secretType),
+    });
   }
 
-  getEmailConfirmationSecret() {
-    return this.emailConfirmationSecret;
-  }
-
-  getResetPasswordSecret() {
-    return this.resetPasswordSecret;
-  }
-
-  getAccessSecret() {
-    return this.accessSecret;
+  private getSecret(token: TokenEnum): string {
+    const secret = this.configService.get<string>(token);
+    return secret;
   }
 }

@@ -1,5 +1,0 @@
-export type TokenTypes =
-  | 'ACCESS_SECRET'
-  | 'REFRESH_SECRET'
-  | 'EMAIL_CONFIRMATION_SECRET'
-  | 'PASSWORD_RESET_SECRET';

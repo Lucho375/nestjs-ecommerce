@@ -7,13 +7,17 @@ import {
   Post,
   Query,
   Req,
+  Res,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { Response } from 'express';
+import { Cookies } from 'src/common/decorators/cookies.decorator';
+import { Public } from 'src/common/decorators/public.decorator';
 import { CreateUserDto } from 'src/users/dto/create.user.dto';
 import { AuthService } from './auth.service';
-import { Public } from './decorators';
 import { LoginCredentials, TokenDto } from './dto';
-import { ResetPasswordDto } from './dto/reset.password.dto';
 import { EmailDto } from './dto/email.dto';
+import { ResetPasswordDto } from './dto/reset.password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -29,8 +33,28 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() loginCredentials: LoginCredentials) {
-    return this.authService.login(loginCredentials);
+  async login(
+    @Body() loginCredentials: LoginCredentials,
+    @Res() res: Response,
+  ) {
+    const { accessToken, refreshToken } =
+      await this.authService.login(loginCredentials);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return res.send({ accessToken });
+  }
+
+  @Public()
+  @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(@Cookies('refreshToken') refreshToken: string) {
+    if (!refreshToken) throw new UnauthorizedException();
+    return this.authService.refreshToken(refreshToken);
   }
 
   @Get('verify')
