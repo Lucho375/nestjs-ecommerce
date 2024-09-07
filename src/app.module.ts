@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { UsersModule } from './users/users.module';
+import { CartsModule } from './carts/carts.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -18,6 +19,7 @@ import { UsersModule } from './users/users.module';
     }),
     AuthModule,
     UsersModule,
+    CartsModule,
   ],
 })
 export class AppModule {}

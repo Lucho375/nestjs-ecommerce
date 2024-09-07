@@ -9,6 +9,7 @@ import { Request } from 'express';
 import { IS_PUBLIC_KEY } from 'src/common/decorators/public.decorator';
 import { TokenEnum } from 'src/token/enums/token.enum';
 import { TokenService } from 'src/token/token.service';
+import { IAuthUser } from '../interfaces/auth.user.interface';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -31,7 +32,7 @@ export class AuthGuard implements CanActivate {
     if (!token) throw new UnauthorizedException();
 
     try {
-      const payload = await this.tokenService.verifyToken(
+      const payload = await this.tokenService.verifyToken<IAuthUser>(
         token,
         TokenEnum.ACCESS_SECRET,
       );
