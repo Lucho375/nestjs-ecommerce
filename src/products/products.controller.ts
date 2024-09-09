@@ -4,8 +4,6 @@ import {
   Delete,
   FileTypeValidator,
   Get,
-  HttpCode,
-  HttpStatus,
   Param,
   ParseFilePipe,
   Post,
