@@ -23,7 +23,7 @@ export class OrdersController {
     return this.ordersService.findOne(orderId);
   }
 
-  @Get('user')
+  @Get('users/current')
   async findByUser(@User('sub') userId: string) {
     return this.ordersService.findByUser(userId);
   }
