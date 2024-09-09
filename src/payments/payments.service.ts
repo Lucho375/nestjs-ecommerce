@@ -28,6 +28,9 @@ export class PaymentsService {
       const { init_point } = await preference.create({
         body: {
           items,
+          metadata: {
+            orderId: uuid(),
+          },
         },
         requestOptions: {
           idempotencyKey: uuid(),
@@ -38,9 +41,8 @@ export class PaymentsService {
         init_point,
       };
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
+      if (error instanceof BadRequestException) throw error;
+
       throw new InternalServerErrorException(
         'Error al crear la preferencia de pago',
       );
