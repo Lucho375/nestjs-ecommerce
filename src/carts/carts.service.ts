@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { ProductDocument } from 'src/products/schemas/product.schema';
 import { CartItemDto, CreateCartDto } from './dto/create.cart.dto';
 import { Cart } from './schemas/cart.schema';
 
@@ -100,5 +101,27 @@ export class CartsService {
     await cart.save();
 
     return total;
+  }
+
+  async checkout(userId) {
+    const cart = await this.cartModel
+      .findOne({ user: userId })
+      .populate('items.product');
+
+    if (!cart || !cart.items.length)
+      throw new BadRequestException('El carrito no existe o esta vacío');
+
+    const items = cart.items.map((item) => {
+      const product = item.product as ProductDocument;
+
+      return {
+        id: product._id.toString(),
+        unit_price: product.price,
+        quantity: item.quantity,
+        title: product.title,
+      };
+    });
+
+    return { items };
   }
 }
