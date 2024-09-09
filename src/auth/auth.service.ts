@@ -7,11 +7,11 @@ import {
 } from '@nestjs/common';
 import { EmailService } from 'src/email/email.service';
 import { HashService } from 'src/hash/hash.service';
+import { TokenEnum } from 'src/token/enums/token.enum';
 import { TokenService } from 'src/token/token.service';
 import { CreateUserDto } from 'src/users/dto';
 import { UsersService } from 'src/users/users.service';
 import { LoginCredentials, ResetPasswordDto } from './dto';
-import { TokenEnum } from 'src/token/enums/token.enum';
 
 @Injectable()
 export class AuthService {
@@ -47,6 +47,7 @@ export class AuthService {
       sub: user._id.toString(),
       firstName: user.firstName,
       email: user.email,
+      role: user.role,
     };
 
     return {
