@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { CartsModule } from './carts/carts.module';
+import { CreateAdminUser } from './commands/create-admin.command';
 import { OrdersModule } from './orders/orders.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ProductsModule } from './products/products.module';
@@ -26,5 +27,6 @@ import { UsersModule } from './users/users.module';
     PaymentsModule,
     OrdersModule,
   ],
+  providers: [CreateAdminUser],
 })
 export class AppModule {}

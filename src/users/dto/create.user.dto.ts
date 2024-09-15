@@ -1,11 +1,13 @@
 import {
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   IsString,
   MinLength,
   Validate,
 } from 'class-validator';
 import { PasswordMatchValidator } from '../validators/password.match.validator';
+import { Role } from 'src/common/enums/roles.enum';
 
 export class CreateUserDto {
   @IsEmail({}, { message: 'El formato del correo electrónico no es válido' })
@@ -30,4 +32,11 @@ export class CreateUserDto {
   })
   @Validate(PasswordMatchValidator, ['password'])
   confirmPassword: string;
+}
+
+export class CreateAdminUserDto extends CreateUserDto {
+  @IsNotEmpty({ message: 'El rol es requerido' })
+  @IsEnum(Role)
+  @IsString({ message: 'El rol tiene que ser una cadena de caracteres' })
+  role: Role;
 }

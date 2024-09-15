@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ResetPasswordDto } from 'src/auth/dto';
 import { HashService } from 'src/hash/hash.service';
-import { CreateUserDto, UpdateUserDto } from './dto';
+import { CreateAdminUserDto, CreateUserDto, UpdateUserDto } from './dto';
 import { User } from './schemas/user.schema';
 
 @Injectable()
@@ -27,7 +27,11 @@ export class UsersService {
     return user;
   }
 
-  async create(createUserDto: CreateUserDto) {
+  async findOne(filter: Partial<Record<keyof User, any>>) {
+    return this.userModel.findOne(filter);
+  }
+
+  async create(createUserDto: CreateUserDto | CreateAdminUserDto) {
     delete createUserDto.confirmPassword;
     const user = await this.findOneByEmail(createUserDto.email);
     if (user) throw new BadRequestException('El usuario ya existe');
